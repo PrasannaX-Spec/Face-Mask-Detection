@@ -11,30 +11,30 @@ interface Detection {
   bbox: [number, number, number, number];
 }
 
-const WS_URL = "ws://localhost:8000/detect/live";
+const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000/detect/live";
 const SEND_INTERVAL_MS = 120; // ~8 fps to backend — balanced for ML latency
 const MAX_SEND_WIDTH = 640;   // cap frame width before encoding
 
 export default function LiveCameraPage() {
   const { token } = useAuthStore();
-  const videoRef    = useRef<HTMLVideoElement>(null);
-  const canvasRef   = useRef<HTMLCanvasElement>(null);   // hidden capture/encode canvas
-  const overlayRef  = useRef<HTMLCanvasElement>(null);   // visible canvas — always live
-  const wsRef       = useRef<WebSocket | null>(null);
-  const streamRef   = useRef<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);   // hidden capture/encode canvas
+  const overlayRef = useRef<HTMLCanvasElement>(null);   // visible canvas — always live
+  const wsRef = useRef<WebSocket | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const sendTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const fpsTimerRef  = useRef<ReturnType<typeof setInterval> | null>(null);
-  const rafRef       = useRef<number | null>(null);       // requestAnimationFrame id
+  const fpsTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const rafRef = useRef<number | null>(null);       // requestAnimationFrame id
 
-  const [active, setActive]       = useState(false);
+  const [active, setActive] = useState(false);
   const [connected, setConnected] = useState(false);
   const [detections, setDetections] = useState<Detection[]>([]);
-  const [fps, setFps]             = useState(0);
+  const [fps, setFps] = useState(0);
 
   // Refs that must be readable inside RAF/interval callbacks without stale closures
-  const fpsCountRef         = useRef(0);
-  const lastSpokenStateRef  = useRef<string>("None");
-  const isProcessingRef     = useRef(false);   // true while backend is computing a frame
+  const fpsCountRef = useRef(0);
+  const lastSpokenStateRef = useRef<string>("None");
+  const isProcessingRef = useRef(false);   // true while backend is computing a frame
   const latestDetectionsRef = useRef<Detection[]>([]);  // latest server detections for overlay
 
   // ── Live canvas loop ───────────────────────────────────────────────────────
@@ -42,14 +42,14 @@ export default function LiveCameraPage() {
   // This means the video is ALWAYS smooth — no stale frames from backend.
   const startLiveCanvas = useCallback(() => {
     const overlay = overlayRef.current;
-    const video   = videoRef.current;
+    const video = videoRef.current;
     if (!overlay || !video) return;
 
     const ctx = overlay.getContext("2d")!;
 
     const draw = () => {
       if (video.readyState >= 2) {
-        overlay.width  = video.videoWidth  || 640;
+        overlay.width = video.videoWidth || 640;
         overlay.height = video.videoHeight || 480;
         ctx.drawImage(video, 0, 0);
 
@@ -58,9 +58,9 @@ export default function LiveCameraPage() {
           const [sx, sy, ex, ey] = bbox;
           // green = Mask | red = No Mask | amber = Uncertain
           const color =
-            label === "Mask"      ? "#22c55e" :
-            label === "No Mask"   ? "#ef4444" :
-                                    "#eab308";  // Uncertain
+            label === "Mask" ? "#22c55e" :
+              label === "No Mask" ? "#ef4444" :
+                "#eab308";  // Uncertain
           ctx.strokeStyle = color;
           ctx.lineWidth = 2;
           ctx.strokeRect(sx, sy, ex - sx, ey - sy);
@@ -93,13 +93,13 @@ export default function LiveCameraPage() {
     // Stop frame-send interval
     if (sendTimerRef.current) { clearInterval(sendTimerRef.current); sendTimerRef.current = null; }
     // Stop FPS counter
-    if (fpsTimerRef.current)  { clearInterval(fpsTimerRef.current);  fpsTimerRef.current  = null; }
+    if (fpsTimerRef.current) { clearInterval(fpsTimerRef.current); fpsTimerRef.current = null; }
     // Stop live canvas RAF loop
     stopLiveCanvas();
 
     wsRef.current?.close();
     streamRef.current?.getTracks().forEach((t) => t.stop());
-    wsRef.current   = null;
+    wsRef.current = null;
     streamRef.current = null;
 
     latestDetectionsRef.current = [];
@@ -160,7 +160,7 @@ export default function LiveCameraPage() {
         // "Uncertain" is intentionally excluded from voice — don't say "safe"
         // for potential hand/scarf occlusions; only speak on confirmed states.
         let currentSafetyState = "None";
-        if (currentDetections.some((d: Detection) => d.label === "No Mask"))  currentSafetyState = "No Mask";
+        if (currentDetections.some((d: Detection) => d.label === "No Mask")) currentSafetyState = "No Mask";
         else if (currentDetections.some((d: Detection) => d.label === "Mask")) currentSafetyState = "Mask";
         // Uncertain alone → leave state as previous (no re-speak, no false positive)
 
@@ -185,9 +185,9 @@ export default function LiveCameraPage() {
         if (isProcessingRef.current) return; // ← drop frame — backend still busy
 
         // Scale down frame to max 640px wide to reduce encoding + transfer cost
-        const scaleW = Math.min(vid.videoWidth  || 640, MAX_SEND_WIDTH);
+        const scaleW = Math.min(vid.videoWidth || 640, MAX_SEND_WIDTH);
         const scaleH = Math.round((vid.videoHeight || 480) * (scaleW / (vid.videoWidth || 640)));
-        captureCanvas.width  = scaleW;
+        captureCanvas.width = scaleW;
         captureCanvas.height = scaleH;
 
         const ctx = captureCanvas.getContext("2d")!;
@@ -209,8 +209,8 @@ export default function LiveCameraPage() {
 
   useEffect(() => () => stopCamera(), [stopCamera]);
 
-  const maskCount      = detections.filter((d) => d.label === "Mask").length;
-  const noMaskCount    = detections.filter((d) => d.label === "No Mask").length;
+  const maskCount = detections.filter((d) => d.label === "Mask").length;
+  const noMaskCount = detections.filter((d) => d.label === "No Mask").length;
   const uncertainCount = detections.filter((d) => d.label === "Uncertain").length;
 
   return (
@@ -329,20 +329,18 @@ export default function LiveCameraPage() {
                       className="glass-2 px-3 py-2.5 flex items-center justify-between"
                     >
                       <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                          d.label === "Mask"      ? "bg-green-400"  :
-                          d.label === "No Mask"   ? "bg-red-400"    :
-                                                    "bg-yellow-400"
-                        }`} />
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${d.label === "Mask" ? "bg-green-400" :
+                            d.label === "No Mask" ? "bg-red-400" :
+                              "bg-yellow-400"
+                          }`} />
                         <span className="text-sm font-medium">
                           {d.label === "Uncertain" ? "Uncertain / Improper" : d.label}
                         </span>
                       </div>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                        d.label === "Mask"      ? "badge-mask"    :
-                        d.label === "No Mask"   ? "badge-nomask"  :
-                        "badge-uncertain"
-                      }`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${d.label === "Mask" ? "badge-mask" :
+                          d.label === "No Mask" ? "badge-nomask" :
+                            "badge-uncertain"
+                        }`}>
                         {(d.confidence * 100).toFixed(1)}%
                       </span>
                     </motion.div>
