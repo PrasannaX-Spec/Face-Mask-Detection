@@ -11,7 +11,7 @@ interface Detection {
   bbox: [number, number, number, number];
 }
 
-const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000/detect/live";
+const WS_URL = "ws://localhost:8000/detect/live";
 const SEND_INTERVAL_MS = 120; // ~8 fps to backend — balanced for ML latency
 const MAX_SEND_WIDTH = 640;   // cap frame width before encoding
 
@@ -330,16 +330,16 @@ export default function LiveCameraPage() {
                     >
                       <div className="flex items-center gap-2">
                         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${d.label === "Mask" ? "bg-green-400" :
-                            d.label === "No Mask" ? "bg-red-400" :
-                              "bg-yellow-400"
+                          d.label === "No Mask" ? "bg-red-400" :
+                            "bg-yellow-400"
                           }`} />
                         <span className="text-sm font-medium">
                           {d.label === "Uncertain" ? "Uncertain / Improper" : d.label}
                         </span>
                       </div>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${d.label === "Mask" ? "badge-mask" :
-                          d.label === "No Mask" ? "badge-nomask" :
-                            "badge-uncertain"
+                        d.label === "No Mask" ? "badge-nomask" :
+                          "badge-uncertain"
                         }`}>
                         {(d.confidence * 100).toFixed(1)}%
                       </span>
