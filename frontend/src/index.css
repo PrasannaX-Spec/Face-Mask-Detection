@@ -1,0 +1,132 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+
+
+:root {
+  --bg:        #0B0F19;
+  --surface:   rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.07);
+  --border:    rgba(255, 255, 255, 0.08);
+  --accent-1:  #7C3AED;
+  --accent-2:  #2563EB;
+  --text:      #F1F5F9;
+  --muted:     #94A3B8;
+}
+
+/* ── Base ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Glassmorphism card ─────────────────────────────────── */
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.glass-2 {
+  background: var(--surface-2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/* ── Gradient text ──────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #A78BFA, #60A5FA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Gradient button ────────────────────────────────────── */
+.btn-gradient {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.btn-gradient:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-gradient:active { transform: translateY(0); }
+.btn-gradient:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ── Input ──────────────────────────────────────────────── */
+.input-dark {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 0.65rem 1rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  font-size: 0.9rem;
+}
+.input-dark::placeholder { color: var(--muted); }
+.input-dark:focus { border-color: var(--accent-1); }
+
+/* ── Glow effects ───────────────────────────────────────── */
+.glow-purple {
+  box-shadow: 0 0 40px rgba(124, 58, 237, 0.25);
+}
+.glow-blue {
+  box-shadow: 0 0 40px rgba(37, 99, 235, 0.25);
+}
+
+/* ── Animated gradient border ───────────────────────────── */
+.gradient-border {
+  position: relative;
+  border-radius: 16px;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 17px;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-1));
+  background-size: 200% 200%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: gradientShift 4s linear infinite;
+  pointer-events: none;
+}
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+/* ── Detection badge ────────────────────────────────────── */
+.badge-mask      { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3);  }
+.badge-nomask    { background: rgba(239,68,68,0.15);   color: #f87171; border: 1px solid rgba(239,68,68,0.3);   }
+.badge-uncertain { background: rgba(234,179,8,0.15);   color: #facc15; border: 1px solid rgba(234,179,8,0.3);   }

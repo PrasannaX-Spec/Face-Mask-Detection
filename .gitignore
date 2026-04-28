@@ -1,0 +1,10 @@
+venv/
+venvvenv/
+__pycache__/
+*/__pycache__/
+*.pyc
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+.env
+violations/
