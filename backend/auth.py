@@ -3,7 +3,7 @@ from fastapi import HTTPException, status, Query
 
 # Hardcoded credentials
 VALID_USERNAME = "admin"
-VALID_PASSWORD = "admin@123"
+VALID_PASSWORD = "admin123"
 
 # In-memory token store: {token: username}
 active_tokens: dict[str, str] = {}
